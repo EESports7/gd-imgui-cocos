@@ -10,7 +10,7 @@ for older versions of imgui try older commits or just fork idk..
 link to it like any other cmake library, you can also use cpm which comes with geode
 
 ```cmake
-CPMAddPackage("gh:matcool/gd-imgui-cocos#commithash") # specify a commit!
+CPMAddPackage("gh:EESports7/gd-imgui-cocos#commithash") # specify a commit!
 
 target_link_libraries(${PROJECT_NAME} imgui-cocos)
 ```
@@ -19,7 +19,7 @@ You may specify what version of imgui you want to use by setting `IMGUI_VERSION`
 
 ```cmake
 set(IMGUI_VERSION "v1.92.3")
-CPMAddPackage("gh:matcool/gd-imgui-cocos#...")
+CPMAddPackage("gh:EESports7/gd-imgui-cocos#...")
 ```
 
 Or even get imgui yourself, and setting the `HAS_IMGUI` option:
@@ -27,7 +27,7 @@ Or even get imgui yourself, and setting the `HAS_IMGUI` option:
 add_subdirectory(my-epic-imgui)
 
 set(HAS_IMGUI ON)
-CPMAddPackage("gh:matcool/gd-imgui-cocos#...")
+CPMAddPackage("gh:EESports7/gd-imgui-cocos#...")
 ```
 
 
