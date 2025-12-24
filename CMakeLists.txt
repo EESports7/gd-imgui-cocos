@@ -37,6 +37,7 @@ if (NOT HAS_IMGUI)
         ${imgui_SOURCE_DIR}/imgui_draw.cpp
         ${imgui_SOURCE_DIR}/imgui_demo.cpp
         ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
+        ${imgui_SOURCE_DIR}/misc/freetype/imgui_freetype.cpp
     )
 endif()
 
