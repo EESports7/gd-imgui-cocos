@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.14)
 
-set(FT_DISABLE_VERSIONING ON CACHE BOOL "" FORCE)
-
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
 project(imgui-cocos)
+
+set(FT_DISABLE_VERSIONING ON CACHE BOOL "" FORCE)
 
 add_library(imgui-cocos INTERFACE)
 
@@ -36,8 +36,8 @@ if (NOT HAS_IMGUI)
 
     CPMAddPackage(
         NAME freetype
-        GITHUB_REPOSITORY aseprite/freetype2
-        GIT_TAG VER-2-10-0
+        GITHUB_REPOSITORY github.com
+        GIT_TAG VER-2-14-1
     )
 
     target_link_libraries(imgui-cocos INTERFACE freetype)
