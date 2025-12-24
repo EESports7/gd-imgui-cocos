@@ -4,6 +4,8 @@
 #include <imgui.h>
 #include <utility>
 
+#define IMGUI_HAS_TEXTURES
+
 #ifdef GEODE_IS_WINDOWS
 	// so msvc shuts up
 	#define sscanf sscanf_s
