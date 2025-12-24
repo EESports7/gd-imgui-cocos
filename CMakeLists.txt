@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
+set(CMAKE_RC_FLAGS "${CMAKE_RC_FLAGS} /DUNICODE /D_UNICODE")
+
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
 project(imgui-cocos)
