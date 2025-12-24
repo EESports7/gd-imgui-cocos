@@ -21,12 +21,22 @@ if (IMGUI_HOOK_EARLY)
     target_compile_definitions(imgui-cocos INTERFACE IMGUI_COCOS_HOOK_EARLY=1)
 endif()
 
+target_compile_definitions(imgui-cocos INTERFACE IMGUI_ENABLE_FREETYPE)
+
 if (NOT HAS_IMGUI)
     if (NOT COMMAND CPMAddPackage)
         include(cmake/CPM.cmake)
     endif()
 
     CPMAddPackage("gh:ocornut/imgui#${IMGUI_VERSION}")
+
+    CPMAddPackage(
+        NAME freetype
+        GITHUB_REPOSITORY aseprite/freetype2
+        GIT_TAG VER-2-13-2
+    )
+
+    target_link_libraries(imgui-cocos INTERFACE freetype)
 
     target_include_directories(imgui-cocos INTERFACE ${imgui_SOURCE_DIR})
 
