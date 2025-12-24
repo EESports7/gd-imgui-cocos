@@ -4,8 +4,6 @@
 #include <imgui.h>
 #include <utility>
 
-#define IMGUI_HAS_TEXTURES
-
 #ifdef GEODE_IS_WINDOWS
 	// so msvc shuts up
 	#define sscanf sscanf_s
@@ -220,9 +218,9 @@ ImGuiCocos& ImGuiCocos::setup() {
 	if (glVersion >= 320) {
 		io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
 	}
-#ifdef IMGUI_HAS_TEXTURES
+
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures;
-#endif
+
 
 	// use static since imgui does not own the pointer!
 	static const auto iniPath = (Mod::get()->getSaveDir() / "imgui.ini").string();
@@ -244,17 +242,6 @@ ImGuiCocos& ImGuiCocos::setup() {
 
 	m_setupCall();
 
-#ifndef IMGUI_HAS_TEXTURES
-	unsigned char* pixels;
-	int width, height;
-	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-
-	m_fontTexture = new CCTexture2D;
-	m_fontTexture->initWithData(pixels, kCCTexture2DPixelFormat_RGBA8888, width, height, CCSize(static_cast<float>(width), static_cast<float>(height)));
-
-	io.Fonts->SetTexID(fromGLTexture(m_fontTexture->getName()));
-#endif
-
 	return *this;
 }
 
@@ -262,16 +249,14 @@ void ImGuiCocos::destroy() {
 	if (!m_initialized) return;
 
 	ImGui::GetIO().BackendPlatformUserData = nullptr;
-#ifdef IMGUI_HAS_TEXTURES
+
 	for (auto* tex : ImGui::GetPlatformIO().Textures) {
 		if (tex->RefCount == 1) {
 			tex->SetStatus(ImTextureStatus_WantDestroy);
 			this->updateTexture(tex);
 		}
 	}
-#else
-	delete m_fontTexture;
-#endif
+
 	ImGui::DestroyContext();
 	m_initialized = false;
 }
@@ -400,7 +385,6 @@ void ImGuiCocos::legacyRenderFrame() const {
 
 	auto* drawData = ImGui::GetDrawData();
 
-#ifdef IMGUI_HAS_TEXTURES
 	if (drawData->Textures != nullptr) {
 		for (auto* tex : *drawData->Textures) {
 			if (tex->Status != ImTextureStatus_OK) {
@@ -408,7 +392,6 @@ void ImGuiCocos::legacyRenderFrame() const {
 			}
 		}
 	}
-#endif
 
 	for (int i = 0; i < drawData->CmdListsCount; ++i) {
 		auto* list = drawData->CmdLists[i];
@@ -470,7 +453,6 @@ void ImGuiCocos::renderFrame() const {
 
 	const bool hasVtxOffset = ImGui::GetIO().BackendFlags | ImGuiBackendFlags_RendererHasVtxOffset;
 
-#ifdef IMGUI_HAS_TEXTURES
 	if (drawData->Textures != nullptr) {
 		for (auto* tex : *drawData->Textures) {
 			if (tex->Status != ImTextureStatus_OK) {
@@ -478,7 +460,6 @@ void ImGuiCocos::renderFrame() const {
 			}
 		}
 	}
-#endif
 
 	glEnable(GL_SCISSOR_TEST);
 
@@ -555,7 +536,6 @@ void ImGuiCocos::renderFrame() const {
 	glDisable(GL_SCISSOR_TEST);
 }
 
-#ifdef IMGUI_HAS_TEXTURES
 void ImGuiCocos::updateTexture(ImTextureData* tex) const {
 	if (tex->Status == ImTextureStatus_WantCreate) {
 		IM_ASSERT(tex->Format == ImTextureFormat_RGBA32);
@@ -612,4 +592,3 @@ void ImGuiCocos::updateTexture(ImTextureData* tex) const {
 		tex->SetStatus(ImTextureStatus_Destroyed);
 	}
 }
-#endif
