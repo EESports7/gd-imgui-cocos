@@ -25,7 +25,10 @@ if (IMGUI_HOOK_EARLY)
     target_compile_definitions(imgui-cocos INTERFACE IMGUI_COCOS_HOOK_EARLY=1)
 endif()
 
-target_compile_definitions(imgui-cocos INTERFACE IMGUI_ENABLE_FREETYPE)
+target_compile_definitions(imgui-cocos INTERFACE
+    IMGUI_USE_STB_SPRINTF
+    IMGUI_STB_SPRINTF_FILENAME="\"stb/stb_sprintf.h\""
+)
 
 if (NOT HAS_IMGUI)
     if (NOT COMMAND CPMAddPackage)
@@ -40,9 +43,18 @@ if (NOT HAS_IMGUI)
         GIT_TAG VER-2-14-1
     )
 
+    CPMAddPackage(
+        NAME stb
+        GITHUB_REPOSITORY nothings/stb
+        GIT_TAG 1ee679c
+    )
+
     target_link_libraries(imgui-cocos INTERFACE freetype)
 
-    target_include_directories(imgui-cocos INTERFACE ${imgui_SOURCE_DIR})
+    target_include_directories(imgui-cocos INTERFACE
+        ${imgui_SOURCE_DIR}
+        ${stb_SOURCE_DIR}
+    )
 
     target_sources(imgui-cocos INTERFACE
         ${imgui_SOURCE_DIR}/imgui.cpp
