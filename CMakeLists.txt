@@ -26,6 +26,7 @@ if (IMGUI_HOOK_EARLY)
 endif()
 
 target_compile_definitions(imgui-cocos INTERFACE
+    IMGUI_ENABLE_FREETYPE
     IMGUI_USE_STB_SPRINTF
     IMGUI_STB_SPRINTF_FILENAME="\"stb/stb_sprintf.h\""
 )
