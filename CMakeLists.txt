@@ -33,7 +33,7 @@ if (NOT HAS_IMGUI)
     CPMAddPackage(
         NAME freetype
         GITHUB_REPOSITORY aseprite/freetype2
-        GIT_TAG VER-2-13-2
+        GIT_TAG VER-2-10-0
     )
 
     target_link_libraries(imgui-cocos INTERFACE freetype)
