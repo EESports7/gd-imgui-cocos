@@ -36,7 +36,7 @@ if (NOT HAS_IMGUI)
 
     CPMAddPackage(
         NAME freetype
-        GITHUB_REPOSITORY github.com
+        GITHUB_REPOSITORY freetype/freetype
         GIT_TAG VER-2-14-1
     )
 
