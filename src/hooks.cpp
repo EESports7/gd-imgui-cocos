@@ -12,16 +12,16 @@ using namespace geode::prelude;
 
 #ifndef GEODE_IS_IOS
 class $modify(CCMouseDispatcher) {
-	bool dispatchScrollMSG(float y, float x) {
+	bool dispatchScrollMSG(float x, float y) {
 		if (!ImGuiCocos::get().isInitialized())
-			return CCMouseDispatcher::dispatchScrollMSG(y, x);
+			return CCMouseDispatcher::dispatchScrollMSG(x, y);
 
 		auto& io = ImGui::GetIO();
 		static constexpr float scrollMult = 1.f / 10.f;
-		io.AddMouseWheelEvent(x * scrollMult, -y * scrollMult);
+		io.AddMouseWheelEvent(y * scrollMult, -x * scrollMult);
 
 		if (!io.WantCaptureMouse) {
-			return CCMouseDispatcher::dispatchScrollMSG(y, x);
+			return CCMouseDispatcher::dispatchScrollMSG(x, y);
 		}
 		return true;
 	}
@@ -114,8 +114,7 @@ class $modify(CCKeyboardDispatcher) {
 
 		const bool shouldEatInput = ImGui::GetIO().WantCaptureKeyboard || shouldBlockInput();
 		if (shouldEatInput || !down) {
-			const auto imKey = cocosToImGuiKey(key);
-			if (imKey != ImGuiKey_None) {
+			if (const auto imKey = cocosToImGuiKey(key); imKey != ImGuiKey_None) {
 				ImGui::GetIO().AddKeyEvent(imKey, down);
 			}
 		}
