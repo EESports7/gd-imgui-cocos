@@ -2,7 +2,7 @@
 
 imgui in gd using cocos! for geode
 
-requires imgui v1.90+ (may change in the future), but ideally use latest. \
+requires imgui v1.92+ (may change in the future), but ideally use latest. \
 for older versions of imgui try older commits or just fork idk..
 
 ## setup
@@ -18,7 +18,7 @@ target_link_libraries(${PROJECT_NAME} imgui-cocos)
 You may specify what version of imgui you want to use by setting `IMGUI_VERSION` before including the library:
 
 ```cmake
-set(IMGUI_VERSION "v1.92.3")
+set(IMGUI_VERSION "v1.92.5")
 CPMAddPackage("gh:EESports7/gd-imgui-cocos#...")
 ```
 
@@ -63,7 +63,7 @@ Make sure that in your `mod.json` the ttf is a `file`, instead of a font! you do
 ```cpp
 ImGuiCocos::get().setup([] {
     // you should do this in setup! ok thx
-    auto* font = ImGui::GetIO().Fonts->AddFontFromFileTTF((Mod::get()->getResourcesDir() / "whatever.ttf").string().c_str(), 16.0f);
+    auto* font = ImGui::GetIO().Fonts->AddFontFromFileTTF((Mod::get()->getResourcesDir() / "whatever.ttf").string().c_str());
     // do something with the font.. like io.FontDefault or something
 })//.draw(... etc
 ```

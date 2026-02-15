@@ -47,7 +47,7 @@ class $modify(ImGuiCocosCCMouseDispatcher, CCMouseDispatcher) {
 	#define IF_2_208(...)
 #endif
 
-class $modify(ImGuiCocosCCIMEDispatcher, CCIMEDispatcher) {
+class $modify(CCIMEDispatcher) {
 	void dispatchInsertText(const char* text, int len IF_2_2(, enumKeyCodes keys)) {
 		if (!ImGuiCocos::get().isInitialized())
 			return CCIMEDispatcher::dispatchInsertText(text, len IF_2_2(, keys));
@@ -180,7 +180,7 @@ $execute {
 #else
 // otherwise, hook dispatchKeyboardMSG
 #ifndef GEODE_IS_IOS
-class $modify(ImGuiCocosCCKeyboardDispatcher, CCKeyboardDispatcher) {
+class $modify(CCKeyboardDispatcher) {
 	bool dispatchKeyboardMSG(enumKeyCodes key, bool down IF_2_2(, bool repeat) IF_2_208(, double time)) {
 		if (!ImGuiCocos::get().isInitialized())
 			return CCKeyboardDispatcher::dispatchKeyboardMSG(key, down IF_2_2(, repeat) IF_2_208(, time));
@@ -192,6 +192,32 @@ class $modify(ImGuiCocosCCKeyboardDispatcher, CCKeyboardDispatcher) {
 				ImGui::GetIO().AddKeyEvent(imKey, down);
 			}
 		}
+
+		#ifdef GEODE_IS_MOBILE
+        if (down) {
+            char c = 0;
+            if (key >= KEY_A && key <= KEY_Z) {
+                c = static_cast<char>(key);
+                if (!io.KeyShift) {
+                    c = static_cast<char>(tolower(c));
+                }
+            } else if (key >= KEY_Zero && key <= KEY_Nine) {
+                c = static_cast<char>('0' + (key - KEY_Zero));
+            } else if (key == KEY_Space) {
+                c = ' ';
+            }
+
+            if (c != 0) {
+                std::string str(1, c);
+                io.AddInputCharactersUTF8(str.c_str());
+            }
+        }
+        if (key == KEY_Backspace) {
+            io.AddKeyEvent(ImGuiKey_Backspace, true);
+            io.AddKeyEvent(ImGuiKey_Backspace, false);
+        }
+        #endif
+
 		if (shouldEatInput) {
 			return false;
 		} else {
@@ -202,7 +228,13 @@ class $modify(ImGuiCocosCCKeyboardDispatcher, CCKeyboardDispatcher) {
 #endif
 #endif
 
-class $modify(ImGuiCocosCCTouchDispatcher, CCTouchDispatcher) {
+class $modify(CCTouchDispatcher) {
+	static void onModify(auto& self) {
+		if (!self.setHookPriorityPre("cocos2d::CCTouchDispatcher::touches", Priority::First)) {
+			log::warn("Failed to set hook priority for touches");
+		}
+	}
+
 	void touches(CCSet* touches, CCEvent* event, unsigned int type) {
 		if (!ImGuiCocos::get().isInitialized() || !touches)
 			return CCTouchDispatcher::touches(touches, event, type);

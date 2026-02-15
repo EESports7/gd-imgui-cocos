@@ -221,7 +221,6 @@ ImGuiCocos& ImGuiCocos::setup() {
 
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures;
 
-
 	// use static since imgui does not own the pointer!
 	static const auto iniPath = (Mod::get()->getSaveDir() / "imgui.ini").string();
 	io.IniFilename = iniPath.c_str();
