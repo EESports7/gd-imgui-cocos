@@ -49,6 +49,8 @@ if (NOT HAS_IMGUI)
         NAME freetype
         GITHUB_REPOSITORY freetype/freetype
         GIT_TAG VER-2-14-1
+        CMAKE_ARGS
+            -DCMAKE_OSX_ARCHITECTURES:STRING="arm64;x86_64"
     )
 
     CPMAddPackage(
