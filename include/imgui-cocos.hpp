@@ -18,7 +18,7 @@ private:
 	bool m_visible = true;
 	bool m_reloading = false;
 	bool m_forceLegacy = false;
-	std::function<void()> m_setupCall, m_drawCall;
+	geode::Function<void()> m_setupCall, m_drawCall;
 	InputMode m_inputMode = InputMode::Default;
 	ImGuiMouseCursor m_lastCursor = ImGuiMouseCursor_COUNT;
 	void updateTexture(ImTextureData*) const;
@@ -39,10 +39,10 @@ public:
 	// called on swapBuffers
 	void drawFrame();
 
-	ImGuiCocos& setup(std::function<void()> fun);
+	ImGuiCocos& setup(geode::Function<void()> fun);
 	ImGuiCocos& setup();
 
-	ImGuiCocos& draw(std::function<void()> fun);
+	ImGuiCocos& draw(geode::Function<void()> fun);
 
 	// used to reinitialize imgui context
 	void reload();
