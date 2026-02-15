@@ -20,7 +20,7 @@ $on_mod(Loaded) {
 			static float size = 18;
 			ImGui::DragFloat("Size", &size, 0.25f, 5.f, 100.f);
 
-			ImGui::PushFont(NULL, size);
+			ImGui::PushFont(nullptr, size);
 			ImGui::Text("Wow! this window sure has a lot of text.");
 			ImGui::Text("와! 이 창에는 정말 많은 텍스트가 있네요.");
 			ImGui::Text("Ого! В этом окне и правда много текста.");
