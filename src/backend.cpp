@@ -78,6 +78,11 @@ protected:
 public:
 	bool attachWithIME() override {
 		if (CCIMEDelegate::attachWithIME()) {
+			#ifdef GEODE_IS_ANDROID
+			ImGui::GetIO().AddKeyEvent(ImGuiKey_End, true);
+            ImGui::GetIO().AddKeyEvent(ImGuiKey_End, false);
+			#endif
+
 			m_attached = true;
 			CCEGLView::get()->setIMEKeyboardState(true);
 			return true;
@@ -213,8 +218,9 @@ ImGuiCocos& ImGuiCocos::setup() {
 		return major * 100 + minor * 10;
 	}();
 
-	io.BackendPlatformName = "gd-imgui-cocos + Geode";
 	io.BackendPlatformUserData = this;
+	io.BackendPlatformName = "gd-imgui-cocos + Geode";
+	io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 	if (glVersion >= 320) {
 		io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
 	}
@@ -225,17 +231,17 @@ ImGuiCocos& ImGuiCocos::setup() {
 	static const auto iniPath = (Mod::get()->getSaveDir() / "imgui.ini").string();
 	io.IniFilename = iniPath.c_str();
 
-#if IMGUI_VERSION_NUM >= 19110
-	// define geode's clipboard funcs for imgui
-	ImGui::GetPlatformIO().Platform_GetClipboardTextFn = [](ImGuiContext* ctx) {
-		static std::string text;
-		text = geode::utils::clipboard::read();
-		return text.c_str();
-	};
-	ImGui::GetPlatformIO().Platform_SetClipboardTextFn = [](ImGuiContext* ctx, const char* text) {
-		geode::utils::clipboard::write(text);
-	};
-#endif
+	#if IMGUI_VERSION_NUM >= 19110
+		// define geode's clipboard funcs for imgui
+		auto static read = clipboard::read();
+		ImGui::GetPlatformIO().Platform_GetClipboardTextFn = [](ImGuiContext* ctx) {
+			read = clipboard::read();
+			return read.c_str();
+		};
+		ImGui::GetPlatformIO().Platform_SetClipboardTextFn = [](ImGuiContext* ctx, const char* text) {
+			clipboard::write(text);
+		};
+	#endif
 
 	m_initialized = true;
 
@@ -337,22 +343,22 @@ void ImGuiCocos::newFrame() {
 	io.KeyCtrl = kb->getControlKeyPressed();
 	io.KeyShift = kb->getShiftKeyPressed();
 
-#ifdef GEODE_IS_MOBILE
-	auto ime = ImGuiIMEDelegate::get();
-	if (io.WantTextInput && !ime->isAttached()) {
-		ime->attachWithIME();
-	} else if (!io.WantTextInput && ime->isAttached()) {
-		ime->detachWithIME();
-	}
-#endif
+	#ifdef GEODE_IS_MOBILE
+		auto ime = ImGuiIMEDelegate::get();
+		if (io.WantTextInput && !ime->isAttached()) {
+			ime->attachWithIME();
+		} else if (!io.WantTextInput && ime->isAttached()) {
+			ime->detachWithIME();
+		}
+	#endif
 
-#ifdef MAT_SUPPORTS_CURSOR
-	auto cursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
-	if (cursor != m_lastCursor) {
-		m_lastCursor = cursor;
-		setMouseCursor(cursor);
-	}
-#endif
+	#ifdef MAT_SUPPORTS_CURSOR
+		auto cursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
+		if (cursor != m_lastCursor) {
+			m_lastCursor = cursor;
+			setMouseCursor(cursor);
+		}
+	#endif
 }
 
 static bool hasExtension(const std::string_view ext) {

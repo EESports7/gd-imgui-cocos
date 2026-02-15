@@ -97,25 +97,26 @@ ImGuiKey cocosToImGuiKey(cocos2d::enumKeyCodes key) {
 		case KEY_Left: return ImGuiKey_LeftArrow;
 		case KEY_Right: return ImGuiKey_RightArrow;
 
-		case KEY_Control: return ImGuiKey_LeftCtrl;
-		case KEY_LeftControl: return ImGuiKey_LeftCtrl;
-		case KEY_RightContol: return ImGuiKey_RightCtrl;
-		case KEY_LeftWindowsKey: return ImGuiKey_LeftSuper;
-		case KEY_RightWindowsKey: return ImGuiKey_RightSuper;
-		case KEY_Shift: return ImGuiKey_LeftShift;
-		case KEY_LeftShift: return ImGuiKey_LeftShift;
-		case KEY_RightShift: return ImGuiKey_RightShift;
-		case KEY_Alt: return ImGuiKey_LeftAlt;
-		case KEY_LeftMenu: return ImGuiKey_LeftAlt;
-		case KEY_RightMenu: return ImGuiKey_RightAlt;
+		case KEY_Control: return ImGuiMod_Ctrl;
+		case KEY_LeftWindowsKey: return ImGuiMod_Super;
+		case KEY_Shift: return ImGuiMod_Shift;
+		case KEY_Alt: return ImGuiMod_Alt;
 		case KEY_Enter: return ImGuiKey_Enter;
 
 		case KEY_Home: return ImGuiKey_Home;
 		case KEY_End: return ImGuiKey_End;
-		case KEY_Delete: return ImGuiKey_Delete;
-		case KEY_Backspace: return ImGuiKey_Backspace;
-		case KEY_Tab: return ImGuiKey_Tab;
+
+		#ifndef GEODE_IS_MACOS
+			case KEY_Delete: return ImGuiKey_Delete;
+		#endif
 		case KEY_Escape: return ImGuiKey_Escape;
+
+		#ifdef GEODE_IS_ANDROID
+			case KEY_LeftControl: return ImGuiKey_ModCtrl;
+			case KEY_RightContol: return ImGuiKey_ModCtrl;
+			case KEY_LeftShift: return ImGuiKey_ModShift;
+			case KEY_RightShift: return ImGuiKey_ModShift;
+		#endif
 
 		default: return ImGuiKey_None;
 	}
@@ -223,8 +224,26 @@ class $modify(CCKeyboardDispatcher) {
 			return CCKeyboardDispatcher::dispatchKeyboardMSG(key, down IF_2_2(, repeat) IF_2_208(, time));
 		}
 	}
+
+	#if defined(GEODE_IS_MACOS)
+	static void onModify(auto& self) {
+		Result<> res = self.setHookPriorityBeforePre("CCKeyboardDispatcher::updateModifierKeys", "geode.custom-keybinds");
+		if (!res) {
+			log::warn("Failed to set hook priority for CCKeyboardDispatcher::updateModifierKeys: {}", res.unwrapErr());
+		}
+	}
+
+	void updateModifierKeys(bool shft, bool ctrl, bool alt, bool cmd) {
+        auto& io = ImGui::GetIO();
+
+        io.AddKeyEvent(ImGuiMod_Shift, shft);
+        io.AddKeyEvent(ImGuiMod_Ctrl, ctrl);
+        io.AddKeyEvent(ImGuiMod_Alt, alt);
+        io.AddKeyEvent(ImGuiMod_Super, cmd);
+        CCKeyboardDispatcher::updateModifierKeys(shft, ctrl, alt, cmd);
+    }
+	#endif
 };
-#endif
 #endif
 
 class $modify(CCTouchDispatcher) {
