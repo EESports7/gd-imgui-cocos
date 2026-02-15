@@ -46,6 +46,14 @@ if (NOT HAS_IMGUI)
     CPMAddPackage("gh:ocornut/imgui#${IMGUI_VERSION}")
 
     CPMAddPackage(
+        NAME libpng
+        GITHUB_REPOSITORY glennrp/libpng
+        GIT_TAG v1.6.43
+        CMAKE_ARGS
+        -DCMAKE_OSX_ARCHITECTURES:STRING="arm64;x86_64"
+    )
+
+    CPMAddPackage(
         NAME freetype
         GITHUB_REPOSITORY freetype/freetype
         GIT_TAG VER-2-14-1
