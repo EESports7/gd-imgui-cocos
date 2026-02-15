@@ -102,10 +102,10 @@ ImGuiKey cocosToImGuiKey(cocos2d::enumKeyCodes key) {
 		case KEY_Escape: return ImGuiKey_Escape;
 
 		#ifdef GEODE_IS_ANDROID
-			case KEY_LeftControl: return ImGuiKey_ModCtrl;
-			case KEY_RightContol: return ImGuiKey_ModCtrl;
-			case KEY_LeftShift: return ImGuiKey_ModShift;
-			case KEY_RightShift: return ImGuiKey_ModShift;
+			case KEY_LeftControl: return ImGuiKey_LeftCtrl;
+			case KEY_RightContol: return ImGuiKey_RightCtrl;
+			case KEY_LeftShift: return ImGuiKey_LeftShift;
+			case KEY_RightShift: return ImGuiKey_RightShift;
 		#endif
 
 		default: return ImGuiKey_None;
@@ -123,10 +123,11 @@ class $modify(CCKeyboardDispatcher) {
 		if (!ImGuiCocos::get().isInitialized())
 			return CCKeyboardDispatcher::dispatchKeyboardMSG(key, down IF_2_2(, repeat) IF_2_208(, time));
 
-		const bool shouldEatInput = ImGui::GetIO().WantCaptureKeyboard || shouldBlockInput();
+		auto& io = ImGui::GetIO();
+		const bool shouldEatInput = io.WantCaptureKeyboard || shouldBlockInput();
 		if (shouldEatInput || !down) {
 			if (const auto imKey = cocosToImGuiKey(key); imKey != ImGuiKey_None) {
-				ImGui::GetIO().AddKeyEvent(imKey, down);
+				io.AddKeyEvent(imKey, down);
 			}
 		}
 
@@ -155,11 +156,8 @@ class $modify(CCKeyboardDispatcher) {
         }
         #endif
 
-		if (shouldEatInput) {
-			return false;
-		} else {
-			return CCKeyboardDispatcher::dispatchKeyboardMSG(key, down IF_2_2(, repeat) IF_2_208(, time));
-		}
+		if (shouldEatInput) return false;
+		return CCKeyboardDispatcher::dispatchKeyboardMSG(key, down IF_2_2(, repeat) IF_2_208(, time));
 	}
 
 	#if defined(GEODE_IS_MACOS)
