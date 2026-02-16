@@ -33,7 +33,7 @@ if (IMGUI_HOOK_EARLY)
 endif()
 
 target_compile_definitions(${PROJECT_NAME} INTERFACE
-    IMGUI_ENABLE_FREETYPE
+#    IMGUI_ENABLE_FREETYPE breaks macos
     IMGUI_USE_STB_SPRINTF
     IMGUI_STB_SPRINTF_FILENAME="stb_sprintf.h"
 )
@@ -49,8 +49,6 @@ if (NOT HAS_IMGUI)
         NAME freetype
         GITHUB_REPOSITORY freetype/freetype
         GIT_TAG VER-2-14-1
-        CMAKE_ARGS
-            -DCMAKE_OSX_ARCHITECTURES:STRING="arm64;x86_64"
     )
 
     CPMAddPackage(
