@@ -15,15 +15,6 @@ target_sources(${PROJECT_NAME} INTERFACE
 
 target_include_directories(${PROJECT_NAME} INTERFACE include)
 
-if(IMGUI_COCOS_MODULE)
-    target_sources(${PROJECT_NAME} INTERFACE
-        FILE_SET cxx_modules TYPE CXX_MODULES
-        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
-        FILES
-            ${PROJECT_NAME}/include/imgui-cocos.cppm
-    )
-endif()
-
 option(HAS_IMGUI "If imgui is already provided externally" OFF)
 set(IMGUI_VERSION "v1.92.5" CACHE STRING "What imgui version to download and use")
 option(IMGUI_HOOK_EARLY "Hook swapBuffers early, as to show imgui under mod menus. Disable this if you're a mod menu" ON)
