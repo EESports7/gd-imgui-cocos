@@ -8,7 +8,7 @@ add_library(${PROJECT_NAME} STATIC)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
-target_sources(${PROJECT_NAME} PUBLIC
+target_sources(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/backend.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hooks.cpp
 )
