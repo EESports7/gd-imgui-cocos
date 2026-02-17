@@ -21,7 +21,7 @@ if(IMGUI_COCOS_MODULE)
         FILE_SET cxx_modules TYPE CXX_MODULES
         BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
         FILES
-            ${PROJECT_NAME}/include/imgui-cocos.cppm
+            ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui-cocos.cppm
     )
 endif()
 
