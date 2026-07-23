@@ -243,6 +243,7 @@ class $modify(CCKeyboardDispatcher) {
 	#endif
 };
 #endif
+#endif
 
 class $modify(CCTouchDispatcher) {
 	static void onModify(auto& self) {
