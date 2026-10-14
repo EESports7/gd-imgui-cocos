@@ -11,17 +11,17 @@
 using namespace geode::prelude;
 
 #ifndef GEODE_IS_IOS
-class $modify(CCMouseDispatcher) {
-	bool dispatchScrollMSG(float x, float y) {
+class $modify(ImGuiCocosCCMouseDispatcher, CCMouseDispatcher) {
+	bool dispatchScrollMSG(float y, float x) {
 		if (!ImGuiCocos::get().isInitialized())
-			return CCMouseDispatcher::dispatchScrollMSG(x, y);
+			return CCMouseDispatcher::dispatchScrollMSG(y, x);
 
 		auto& io = ImGui::GetIO();
 		static constexpr float scrollMult = 1.f / 10.f;
-		io.AddMouseWheelEvent(y * scrollMult, -x * scrollMult);
+		io.AddMouseWheelEvent(x * scrollMult, -y * scrollMult);
 
 		if (!io.WantCaptureMouse) {
-			return CCMouseDispatcher::dispatchScrollMSG(x, y);
+			return CCMouseDispatcher::dispatchScrollMSG(y, x);
 		}
 		return true;
 	}
@@ -47,7 +47,7 @@ class $modify(CCMouseDispatcher) {
 	#define IF_2_208(...)
 #endif
 
-class $modify(CCIMEDispatcher) {
+class $modify(ImGuiCocosCCIMEDispatcher, CCIMEDispatcher) {
 	void dispatchInsertText(const char* text, int len IF_2_2(, enumKeyCodes keys)) {
 		if (!ImGuiCocos::get().isInitialized())
 			return CCIMEDispatcher::dispatchInsertText(text, len IF_2_2(, keys));
@@ -97,26 +97,25 @@ ImGuiKey cocosToImGuiKey(cocos2d::enumKeyCodes key) {
 		case KEY_Left: return ImGuiKey_LeftArrow;
 		case KEY_Right: return ImGuiKey_RightArrow;
 
-		case KEY_Control: return ImGuiMod_Ctrl;
-		case KEY_LeftWindowsKey: return ImGuiMod_Super;
-		case KEY_Shift: return ImGuiMod_Shift;
-		case KEY_Alt: return ImGuiMod_Alt;
+		case KEY_Control: return ImGuiKey_LeftCtrl;
+		case KEY_LeftControl: return ImGuiKey_LeftCtrl;
+		case KEY_RightContol: return ImGuiKey_RightCtrl;
+		case KEY_LeftWindowsKey: return ImGuiKey_LeftSuper;
+		case KEY_RightWindowsKey: return ImGuiKey_RightSuper;
+		case KEY_Shift: return ImGuiKey_LeftShift;
+		case KEY_LeftShift: return ImGuiKey_LeftShift;
+		case KEY_RightShift: return ImGuiKey_RightShift;
+		case KEY_Alt: return ImGuiKey_LeftAlt;
+		case KEY_LeftMenu: return ImGuiKey_LeftAlt;
+		case KEY_RightMenu: return ImGuiKey_RightAlt;
 		case KEY_Enter: return ImGuiKey_Enter;
 
 		case KEY_Home: return ImGuiKey_Home;
 		case KEY_End: return ImGuiKey_End;
-
-		#ifndef GEODE_IS_MACOS
-			case KEY_Delete: return ImGuiKey_Delete;
-		#endif
+		case KEY_Delete: return ImGuiKey_Delete;
+		case KEY_Backspace: return ImGuiKey_Backspace;
+		case KEY_Tab: return ImGuiKey_Tab;
 		case KEY_Escape: return ImGuiKey_Escape;
-
-		#ifdef GEODE_IS_ANDROID
-			case KEY_LeftControl: return ImGuiKey_LeftCtrl;
-			case KEY_RightContol: return ImGuiKey_RightCtrl;
-			case KEY_LeftShift: return ImGuiKey_LeftShift;
-			case KEY_RightShift: return ImGuiKey_RightShift;
-		#endif
 
 		default: return ImGuiKey_None;
 	}
@@ -181,77 +180,29 @@ $execute {
 #else
 // otherwise, hook dispatchKeyboardMSG
 #ifndef GEODE_IS_IOS
-class $modify(CCKeyboardDispatcher) {
+class $modify(ImGuiCocosCCKeyboardDispatcher, CCKeyboardDispatcher) {
 	bool dispatchKeyboardMSG(enumKeyCodes key, bool down IF_2_2(, bool repeat) IF_2_208(, double time)) {
 		if (!ImGuiCocos::get().isInitialized())
 			return CCKeyboardDispatcher::dispatchKeyboardMSG(key, down IF_2_2(, repeat) IF_2_208(, time));
 
-		auto& io = ImGui::GetIO();
-		const bool shouldEatInput = io.WantCaptureKeyboard || shouldBlockInput();
+		const bool shouldEatInput = ImGui::GetIO().WantCaptureKeyboard || shouldBlockInput();
 		if (shouldEatInput || !down) {
-			if (const auto imKey = cocosToImGuiKey(key); imKey != ImGuiKey_None) {
-				io.AddKeyEvent(imKey, down);
+			const auto imKey = cocosToImGuiKey(key);
+			if (imKey != ImGuiKey_None) {
+				ImGui::GetIO().AddKeyEvent(imKey, down);
 			}
 		}
-
-		#ifdef GEODE_IS_MOBILE
-        if (down) {
-            char c = 0;
-            if (key >= KEY_A && key <= KEY_Z) {
-                c = static_cast<char>(key);
-                if (!io.KeyShift) {
-                    c = static_cast<char>(tolower(c));
-                }
-            } else if (key >= KEY_Zero && key <= KEY_Nine) {
-                c = static_cast<char>('0' + (key - KEY_Zero));
-            } else if (key == KEY_Space) {
-                c = ' ';
-            }
-
-            if (c != 0) {
-                std::string str(1, c);
-                io.AddInputCharactersUTF8(str.c_str());
-            }
-        }
-        if (key == KEY_Backspace) {
-            io.AddKeyEvent(ImGuiKey_Backspace, true);
-            io.AddKeyEvent(ImGuiKey_Backspace, false);
-        }
-        #endif
-
-		if (shouldEatInput) return false;
-		return CCKeyboardDispatcher::dispatchKeyboardMSG(key, down IF_2_2(, repeat) IF_2_208(, time));
-	}
-
-	#if defined(GEODE_IS_MACOS)
-	static void onModify(auto& self) {
-		Result<> res = self.setHookPriorityBeforePre("CCKeyboardDispatcher::updateModifierKeys", "geode.custom-keybinds");
-		if (!res) {
-			log::warn("Failed to set hook priority for CCKeyboardDispatcher::updateModifierKeys: {}", res.unwrapErr());
+		if (shouldEatInput) {
+			return false;
+		} else {
+			return CCKeyboardDispatcher::dispatchKeyboardMSG(key, down IF_2_2(, repeat) IF_2_208(, time));
 		}
 	}
-
-	void updateModifierKeys(bool shft, bool ctrl, bool alt, bool cmd) {
-        auto& io = ImGui::GetIO();
-
-        io.AddKeyEvent(ImGuiMod_Shift, shft);
-        io.AddKeyEvent(ImGuiMod_Ctrl, ctrl);
-        io.AddKeyEvent(ImGuiMod_Alt, alt);
-        io.AddKeyEvent(ImGuiMod_Super, cmd);
-        CCKeyboardDispatcher::updateModifierKeys(shft, ctrl, alt, cmd);
-    }
-	#endif
 };
 #endif
 #endif
 
-class $modify(CCTouchDispatcher) {
-	static void onModify(auto& self) {
-		if (!self.setHookPriorityPre("cocos2d::CCTouchDispatcher::touches", Priority::First)) {
-			log::warn("Failed to set hook priority for touches");
-		}
-	}
-
+class $modify(ImGuiCocosCCTouchDispatcher, CCTouchDispatcher) {
 	void touches(CCSet* touches, CCEvent* event, unsigned int type) {
 		if (!ImGuiCocos::get().isInitialized() || !touches)
 			return CCTouchDispatcher::touches(touches, event, type);
